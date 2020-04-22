@@ -8,9 +8,10 @@ import com.qinyou.apiserver.core.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -23,35 +24,39 @@ import java.util.List;
  * @since 2019-11-12
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("sys_resource")
-@ApiModel(value="Resource对象", description="系统资源表")
+@ApiModel(value = "Resource对象", description = "系统资源")
 public class Resource extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键，存资源编码")
-    @TableId(value = "id",type = IdType.ID_WORKER_STR)
+    @ApiModelProperty(value = "资源编码", required = true)
+    @NotBlank(message = "{com.codeBlank}")
+    @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
 
-    @ApiModelProperty(value = "名称")
+    @ApiModelProperty(value = "名称", required = true)
+    @NotBlank(message = "{com.nameBlank}")
     @TableField("name")
     private String name;
 
-    @ApiModelProperty(value = "状态ON开启OFF禁用")
+    @ApiModelProperty(value = "状态ON开启OFF禁用", required = true, allowableValues = "ON,OFF")
+    @NotBlank(message = "{com.stateBlank}")
     @TableField("state")
     private String state;
 
-    @ApiModelProperty(value = "类型，menu菜单，btn按钮")
+    @ApiModelProperty(value = "类型，menu菜单，btn按钮", required = true, allowableValues = "menu,btn")
+    @NotBlank(message = "{com.typeBlank}")
     @TableField("type")
     private String type;
 
-    @ApiModelProperty(value = "排序号")
+    @ApiModelProperty(value = "排序号", required = true)
+    @NotNull(message = "{com.sortBlank}")
     @TableField("sort")
     private Integer sort;
 
-    @ApiModelProperty(value = "图标")
+    @ApiModelProperty(hidden = true)
     @TableField("icon")
     private String icon;
 
@@ -61,7 +66,7 @@ public class Resource extends BaseEntity implements Serializable {
 
 
     // 非数据表字段
-    @ApiModelProperty( hidden = true) // 不加 swagger 无法使用
+    @ApiModelProperty(hidden = true) // 不加 swagger 无法使用
     @TableField(exist = false)
     private List<Resource> children;
 }

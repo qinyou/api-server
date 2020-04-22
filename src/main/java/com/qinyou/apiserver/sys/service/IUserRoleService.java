@@ -1,8 +1,8 @@
 package com.qinyou.apiserver.sys.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.qinyou.apiserver.core.base.PageDTO;
-import com.qinyou.apiserver.core.base.PageFindDTO;
+import com.qinyou.apiserver.core.base.PageResult;
+import com.qinyou.apiserver.core.base.Query;
 import com.qinyou.apiserver.sys.entity.Role;
 import com.qinyou.apiserver.sys.entity.UserRole;
 
@@ -19,6 +19,7 @@ import java.util.List;
 public interface IUserRoleService extends IService<UserRole> {
     /**
      * 添加
+     *
      * @param userId
      * @param roleIds
      */
@@ -26,18 +27,20 @@ public interface IUserRoleService extends IService<UserRole> {
 
     /**
      * 删除
+     *
      * @param userId
      * @param roleIds
      */
-    void delUserRoles(String userId,List<String> roleIds);
+    void delUserRoles(String userId, List<String> roleIds);
 
 
     /**
      * 分页查询 用户拥有的角色 或 用户没有的角色
+     *
      * @param haveFlag true 拥有的角色，false 没有的角色
      * @param userId
-     * @param pageFindDTO
+     * @param query
      * @return
      */
-    PageDTO<Role> listRoles(boolean haveFlag, String userId, PageFindDTO pageFindDTO);
+    PageResult<Role> listRoles(boolean haveFlag, String userId, Query query);
 }

@@ -20,21 +20,23 @@ public interface UserRoleMapper extends BaseMapper<UserRole> {
 
     /**
      * 查询用户拥有的角色列表
+     *
      * @param page
      * @param queryWrapper
      * @return
      */
     @Select("select a.id,a.name,a.intro,a.state,b.creater,b.create_time from sys_role a, sys_user_role b where a.id = b.role_id and b.user_id = #{user_id} and  ${ew.sqlSegment} ")
-    IPage<Role> listHaveRoles(IPage<Role> page, @Param("user_id") String userId, @Param("ew") QueryWrapper<Role> queryWrapper );
+    IPage<Role> listHaveRoles(IPage<Role> page, @Param("user_id") String userId, @Param("ew") QueryWrapper<Role> queryWrapper);
 
 
     /**
      * 用户没有的 角色列表
+     *
      * @param page
      * @param userId
      * @param queryWrapper
      * @return
      */
     @Select("select id,name,state from sys_role where id not in (select role_id from sys_user_role where user_id = #{user_id}) and  ${ew.sqlSegment} ")
-    IPage<Role> listNoRoles(IPage<Role> page, @Param("user_id") String userId, @Param("ew") QueryWrapper<Role> queryWrapper );
+    IPage<Role> listNoRoles(IPage<Role> page, @Param("user_id") String userId, @Param("ew") QueryWrapper<Role> queryWrapper);
 }

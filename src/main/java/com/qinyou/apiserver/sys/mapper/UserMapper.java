@@ -19,15 +19,17 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * 查询用户可用的角色编码
+     *
      * @param userId 用户id（用户名）
      * @return
      */
     @Select("select distinct a.role_id from sys_user_role a, sys_role b  where a.role_id = b.id and b.state = 'ON' and a.user_id = #{user_id}  ")
-    Set<String> getUserRoles(@Param("user_id") String userId );
+    Set<String> getUserRoles(@Param("user_id") String userId);
 
 
     /**
      * 查询用户可用的资源编码
+     *
      * @param userId
      * @return
      */

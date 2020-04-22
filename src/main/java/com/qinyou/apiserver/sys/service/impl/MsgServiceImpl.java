@@ -2,8 +2,6 @@ package com.qinyou.apiserver.sys.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.qinyou.apiserver.core.result.RequestException;
-import com.qinyou.apiserver.core.result.ResponseEnum;
 import com.qinyou.apiserver.core.utils.WebUtils;
 import com.qinyou.apiserver.sys.entity.Msg;
 import com.qinyou.apiserver.sys.entity.MsgDetail;
@@ -20,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,51 +34,43 @@ import java.util.Set;
 public class MsgServiceImpl extends ServiceImpl<MsgMapper, Msg> implements IMsgService {
     @Autowired
     IMsgTypeService msgTypeService;
-
     @Autowired
     IMsgService msgService;
-
     @Autowired
     IMsgDetailService msgDetailService;
-
     @Autowired
     IRoleService roleService;
-
     @Autowired
     IUserService userService;
 
     @Transactional
     @Override
     public void triggerMsg(String typeCode, Map<String, Object> params) throws IOException, TemplateException {
-        MsgType  msgType = msgTypeService.getById(typeCode);
-        if(msgType == null){
-            log.info("sys_msg_type id:{} 查询不到", typeCode);
-            throw RequestException.fail(ResponseEnum.DATA_NOT_FOUND);
-        }
+        MsgType msgType = Optional.of(msgTypeService.getById(typeCode)).get();
         String audience = msgType.getAudience();
-        if(StrUtil.isBlank(audience)){
+        if (StrUtil.isBlank(audience)) {
             return;
         }
         Set<String> usernameSet = new HashSet<>();
         String[] ary = audience.split(",");
         String[] itemAry;
-        for(String item:ary){
+        for (String item : ary) {
             itemAry = item.split(":");
-            if("user".equals(itemAry[0])){
+            if ("user".equals(itemAry[0])) {
                 usernameSet.add(itemAry[1]);
             }
-            if("role".equals(itemAry[0])){
+            if ("role".equals(itemAry[0])) {
                 usernameSet.addAll(roleService.findUsersByRole(itemAry[1]));
             }
         }
-        if(usernameSet.size()==0){
+        if (usernameSet.size() == 0) {
             return;
         }
         // IOException, TemplateException
-        String content = WebUtils.processTpl(msgType.getTemplate(),params);
+        String content = WebUtils.processTpl(msgType.getTemplate(), params);
 
         // 保存主表
-        Msg msg  = new Msg().setContent(content)
+        Msg msg = new Msg().setContent(content)
                 .setTypeCode(msgType.getId())
                 .setCreateTime(LocalDateTime.now())
                 .setDeadTime(LocalDateTime.now().plusDays(msgType.getDead()))
@@ -87,7 +78,7 @@ public class MsgServiceImpl extends ServiceImpl<MsgMapper, Msg> implements IMsgS
         msgService.save(msg);
 
         MsgDetail detail;
-        for(String username : usernameSet){
+        for (String username : usernameSet) {
             detail = new MsgDetail().setMsgId(msg.getId())
                     .setReceiver(username)
                     .setSender("SYS")

@@ -1,7 +1,6 @@
 package com.qinyou.apiserver.sys.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.qinyou.apiserver.sys.dto.MsgTypeDTO;
 import com.qinyou.apiserver.sys.entity.MsgType;
 
 /**
@@ -14,8 +13,11 @@ import com.qinyou.apiserver.sys.entity.MsgType;
  */
 public interface IMsgTypeService extends IService<MsgType> {
     // 增改删 切换状态
-    void add(MsgTypeDTO msgTypeDTO);
-    void update(String id, MsgTypeDTO msgTypeDTO);
+    void add(MsgType msgType);
+
+    void update(MsgType msgType);
+
     void remove(String id);
+
     void toggleState(String id);
 }

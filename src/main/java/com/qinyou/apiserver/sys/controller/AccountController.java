@@ -2,14 +2,8 @@ package com.qinyou.apiserver.sys.controller;
 
 import cn.hutool.core.lang.Validator;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qinyou.apiserver.core.aop.SysLog;
-import com.qinyou.apiserver.core.base.PageDTO;
-import com.qinyou.apiserver.core.base.PageFindDTO;
-import com.qinyou.apiserver.core.result.RequestException;
-import com.qinyou.apiserver.core.result.ResponseEnum;
-import com.qinyou.apiserver.core.result.ResponseResult;
-import com.qinyou.apiserver.core.security.JwtClaim;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qinyou.apiserver.core.base.*;
 import com.qinyou.apiserver.core.utils.WebUtils;
 import com.qinyou.apiserver.sys.dto.*;
 import com.qinyou.apiserver.sys.entity.Log;
@@ -27,79 +21,81 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@Api(tags = "账号认证")
+@Api(tags = "账号")
 @Slf4j
 @RestController
 @RequestMapping("/account")
 public class AccountController {
-
-    @Autowired
-    IAccountService accountService;
-    @Autowired
-    ILogService logService;
-
+    private final IAccountService accountService;
+    private final ILogService logService;
     // token 持续时间，单位小时, 用于前台本地保存时间
     @Value("${app.jwt.expire-idle}")
     Integer expireIdle;
 
+    @Autowired
+    public AccountController(IAccountService accountService, ILogService logService) {
+        this.accountService = accountService;
+        this.logService = logService;
+    }
+
     @ApiOperation("用户登录")
     @SysLog(type = "0")
     @PostMapping(value = "/login")
-    public ResponseResult<Map<String, Object>> getToken(@RequestBody @Validated LoginDTO loginDTO) {
-        String token = accountService.login(loginDTO.getUsername(), loginDTO.getPassword());
+    public Result<Map<String, Object>> getToken(@RequestBody @Validated LoginForm loginForm) {
+        String token = accountService.login(loginForm.getUsername(), loginForm.getPassword());
         Map<String, Object> ret = new HashMap<>();
         ret.put("token", "Bearer " + token);
         ret.put("expireIdle", expireIdle);
-        return WebUtils.ok(ResponseEnum.LOGIN_SUCCESS, ret);
+        return WebUtils.ok(ResultEnum.SUCCESS, ret);
     }
 
     @ApiOperation("获得用户信息、用户角色权限")
     @ApiImplicitParam(name = "Authorization", required = true, paramType = "header", value = "身份认证Token")
     @SysLog()
     @GetMapping("/user-info")
-    public ResponseResult<UserInfoDTO> getUserInfo(@JwtClaim String username) {
-        UserInfoDTO userInfoDTO = accountService.getUserInfo(username);
-        return WebUtils.ok(userInfoDTO);
+    public Result<UserInfo> getUserInfo(@JwtClaim String username) {
+        UserInfo userInfo = accountService.getUserInfo(username);
+        return WebUtils.ok(userInfo);
     }
 
     @ApiOperation("修改用户信息")
     @ApiImplicitParam(name = "Authorization", required = true, paramType = "header", value = "身份认证Token")
     @SysLog(type = "0")
     @PostMapping("/update-user-info")
-    public ResponseResult<UserInfoDTO> updateUserInfo(@JwtClaim String username, @RequestBody @Validated  ChangeInfoDTO changeInfoDTO) {
-        accountService.updateUserInfo(username, changeInfoDTO);
-        return WebUtils.ok(ResponseEnum.UPDATE_USERINFO_SUCCESS);
+    public Result updateUserInfo(@JwtClaim String username, @RequestBody @Validated UserInfoForm userInfoForm) {
+        accountService.updateUserInfo(username, userInfoForm);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     @ApiOperation("通过邮箱发送验证码, 用于重置账号密码")
     @SysLog()
     @GetMapping(value = "/send-email-code/{email}")
-    public ResponseResult sendVerificationCodeByEmail(@PathVariable String email) {
+    public Result sendVerificationCodeByEmail(@PathVariable String email) {
         if (!Validator.isEmail(email)) {
-            throw RequestException.fail(ResponseEnum.BAD_PARAM);
+            throw RequestException.fail(ResultEnum.BAD_PARAM);
         }
         accountService.sendMailCode(email);
-        return WebUtils.ok(ResponseEnum.SEND_CODE_SUCCESS);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     @ApiOperation("通过邮箱发送验证码, 用于重置账号密码")
     @SysLog()
     @GetMapping(value = "/send-phone-code/{phone}")
-    public ResponseResult sendVerificationCodeByPhone(@PathVariable String phone) {
+    public Result sendVerificationCodeByPhone(@PathVariable String phone) {
         if (!Validator.isMobile(phone) && !"15238002477".equals(phone)) {
-            throw RequestException.fail(ResponseEnum.BAD_PARAM);
+            throw RequestException.fail(ResultEnum.BAD_PARAM);
         }
         accountService.sendPhoneCode(phone);
-        return WebUtils.ok(ResponseEnum.SEND_CODE_SUCCESS);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
 
     @ApiOperation("通过验证码重置账号密码")
     @SysLog(type = "0")
     @PostMapping(value = "/reset-password")
-    public ResponseResult resetPwd(@RequestBody @Validated ResetPwdDTO resetPwdDTO) {
-        accountService.resetPwd(resetPwdDTO);
-        return WebUtils.ok(ResponseEnum.RESET_PWD_SUCCESS2);
+    public Result resetPwd(@RequestBody @Validated ResetPwdForm resetPwdForm) {
+        accountService.resetPwd(resetPwdForm);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
 
@@ -107,25 +103,24 @@ public class AccountController {
     @ApiImplicitParam(name = "Authorization", required = true, paramType = "header", value = "身份认证Token")
     @SysLog(type = "0")
     @PostMapping(value = "/change-password")
-    public ResponseResult changePwd(@JwtClaim String username, @RequestBody @Validated ChangePwdDTO changePwdDTO) {
-        accountService.changePwd(username, changePwdDTO);
-        return WebUtils.ok(ResponseEnum.CHANGE_PWD_SUCCESS);
+    public Result changePwd(@JwtClaim String username, @RequestBody @Validated ChangePwdForm changePwdForm) {
+        accountService.changePwd(username, changePwdForm);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     @ApiOperation("查询用户日志,带分页")
     @ApiImplicitParam(name = "Authorization", required = true, paramType = "header", value = "身份认证Token")
     @PostMapping("/list-log")
-    public ResponseResult<PageDTO<Log>> list(@JwtClaim String username, @RequestBody PageFindDTO pageFindDto) {
-        QueryWrapper<Log> queryWrapper = WebUtils.buildSearchQueryWrapper(pageFindDto);
+    public Result<PageResult> list(@JwtClaim String username, @RequestBody Query query) {
+        QueryWrapper<Log> queryWrapper = WebUtils.buildSearchQueryWrapper(query);
         queryWrapper.select("id", "username", "ip", "uri", "action_name", "create_time");
         queryWrapper.eq("username", username);
         queryWrapper.eq("type", "0"); // 0 代表用户可见，给用户看的日志
         queryWrapper.orderByDesc("create_time");
 
-        IPage<Log> page = WebUtils.buildSearchPage(pageFindDto);
-        PageDTO<Log> pageDTO = WebUtils.buildResultPage(logService.page(page, queryWrapper));
-
-        return WebUtils.ok(pageDTO);
+        Page<Log> page = WebUtils.buildSearchPage(query);
+        PageResult<Log> pageResult = WebUtils.buildPageResult(logService.page(page, queryWrapper));
+        return WebUtils.ok(pageResult);
     }
 
 }

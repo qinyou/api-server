@@ -39,7 +39,8 @@ public class CodeGenerator {
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        String projectPath = System.getProperty("user.dir");
+//        String projectPath = System.getProperty("user.dir");
+        String projectPath = "E:/gen";
         gc.setOutputDir(projectPath + "/src/main/java");
         gc.setAuthor("chuang");
         gc.setOpen(false);
@@ -90,7 +91,7 @@ public class CodeGenerator {
         strategy.setEntityTableFieldAnnotationEnable(true);
         strategy.setRestControllerStyle(true);
         strategy.setSuperEntityClass(BaseEntity.class);
-        strategy.setSuperEntityColumns("creater","create_time","updater","update_time");  // entity 基类
+        strategy.setSuperEntityColumns("creater", "create_time", "updater", "update_time");  // entity 基类
         strategy.setInclude(scanner("表名，多个英文逗号分割").split(","));
         strategy.setControllerMappingHyphenStyle(true);
         strategy.setTablePrefix(pc.getModuleName() + "_");

@@ -2,13 +2,8 @@ package com.qinyou.apiserver.sys.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qinyou.apiserver.core.aop.SysLog;
-import com.qinyou.apiserver.core.base.PageDTO;
-import com.qinyou.apiserver.core.base.PageFindDTO;
-import com.qinyou.apiserver.core.result.ResponseEnum;
-import com.qinyou.apiserver.core.result.ResponseResult;
+import com.qinyou.apiserver.core.base.*;
 import com.qinyou.apiserver.core.utils.WebUtils;
-import com.qinyou.apiserver.sys.dto.RoleDTO;
 import com.qinyou.apiserver.sys.entity.Resource;
 import com.qinyou.apiserver.sys.entity.Role;
 import com.qinyou.apiserver.sys.service.IRoleResourceService;
@@ -30,69 +25,69 @@ import java.util.List;
  * @author chuang
  * @since 2019-10-19
  */
-@SuppressWarnings({"Duplicates", "SpringJavaInjectionPointsAutowiringInspection"})
-@Api(tags = "角色管理")
+@SuppressWarnings("Duplicates")
+@Api(tags = "2.角色管理")
 @RestController
 @RequestMapping("/sys/role")
 public class RoleController {
-
     @Autowired
     IRoleService roleService;
+
     @Autowired
     IRoleResourceService roleResourceService;
 
     @ApiOperation("查询列表,带分页")
     @PreAuthorize("hasAuthority('sysRole')")
     @PostMapping("/list")
-    public ResponseResult<PageDTO<Role>> list(@RequestBody PageFindDTO pageFindDto) {
-        QueryWrapper<Role> queryWrapper = WebUtils.buildSearchQueryWrapper(pageFindDto);
+    public Result<PageResult<Role>> list(@RequestBody Query query) {
+        QueryWrapper<Role> queryWrapper = WebUtils.buildSearchQueryWrapper(query);
         queryWrapper.orderByAsc("create_time");
-        IPage<Role> page = WebUtils.buildSearchPage(pageFindDto);
-        PageDTO<Role> pageDTO = WebUtils.buildResultPage(roleService.page(page, queryWrapper));
-        return WebUtils.ok(pageDTO);
+        IPage<Role> page = WebUtils.buildSearchPage(query);
+        PageResult<Role> pageResult = WebUtils.buildPageResult(roleService.page(page, queryWrapper));
+        return WebUtils.ok(pageResult);
     }
 
     @ApiOperation("添加角色")
     @SysLog()
     @PreAuthorize("hasAuthority('sysRole:add')")
     @PostMapping("/add")
-    public ResponseResult add(@RequestBody @Validated RoleDTO roleDTO) {
-        roleService.add(roleDTO);
-        return WebUtils.ok(ResponseEnum.ADD_SUCCESS);
+    public Result add(@RequestBody @Validated Role role) {
+        roleService.add(role);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     @ApiOperation(value = "修改角色")
     @SysLog()
     @PreAuthorize("hasAuthority('sysRole:update')")
-    @PostMapping("/update/{id}")
-    public ResponseResult update(@PathVariable("id") String id, @RequestBody @Validated RoleDTO roleDTO) {
-        roleService.update(id, roleDTO);
-        return WebUtils.ok(ResponseEnum.UPDATE_SUCCESS);
+    @PostMapping("/update")
+    public Result update(@RequestBody @Validated Role role) {
+        roleService.update(role);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     @ApiOperation(value = "删除角色")
     @SysLog()
     @PreAuthorize("hasAuthority('sysRole:remove')")
     @GetMapping("/remove/{id}")
-    public ResponseResult remove(@PathVariable("id") String id) {
+    public Result remove(@PathVariable("id") String id) {
         roleService.remove(id);
-        return WebUtils.ok(ResponseEnum.DELETE_SUCCESS);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     @ApiOperation(value = "切换状态，如果为ON变为OFF，如果为OFF变更为ON")
     @SysLog()
     @PreAuthorize("hasAuthority('sysRole:toggle')")
     @GetMapping("/toggle-state/{id}")
-    public ResponseResult toggleState(@PathVariable String id) {
+    public Result toggleState(@PathVariable String id) {
         roleService.toggleState(id);
-        return WebUtils.ok(ResponseEnum.TOGGLE_SUCCESS);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
     /********************************角色配置资源*********************************/
     @ApiOperation(value = "获得角色详情")
     @PreAuthorize("hasAuthority('sysRole:configResources')")
     @GetMapping("/detail/{id}")
-    public ResponseResult<Role> detail(@PathVariable String id) {
+    public Result<Role> detail(@PathVariable String id) {
         return WebUtils.ok(roleService.getById(id));
     }
 
@@ -100,24 +95,24 @@ public class RoleController {
     @ApiOperation(value = "角色没有的资源列表")
     @PreAuthorize("hasAuthority('sysRole:configResources')")
     @PostMapping("/list-no-resources/{roleId}")
-    public ResponseResult<PageDTO<Resource>> listNoResources(@PathVariable String roleId, @RequestBody PageFindDTO pageFindDto) {
-        return WebUtils.ok(roleResourceService.listResources(false, roleId, pageFindDto));
+    public Result<PageResult<Resource>> listNoResources(@PathVariable String roleId, @RequestBody Query query) {
+        return WebUtils.ok(roleResourceService.listResources(false, roleId, query));
     }
 
     @ApiOperation(value = "角色拥有的资源列表")
     @PreAuthorize("hasAuthority('sysRole:configResources')")
     @PostMapping("/list-have-resources/{roleId}")
-    public ResponseResult<PageDTO<Resource>> listHaveResources(@PathVariable String roleId, @RequestBody PageFindDTO pageFindDto) {
-        return WebUtils.ok(roleResourceService.listResources(true, roleId, pageFindDto));
+    public Result<PageResult<Resource>> listHaveResources(@PathVariable String roleId, @RequestBody Query query) {
+        return WebUtils.ok(roleResourceService.listResources(true, roleId, query));
     }
 
     @ApiOperation(value = "删除角色相关资源")
     @SysLog()
     @PreAuthorize("hasAuthority('sysRole:configResources')")
     @PostMapping("/del-role-resources/{roleId}")
-    public ResponseResult deleteRoleResources(@PathVariable String roleId, @RequestBody List<String> resourceIds) {
+    public Result deleteRoleResources(@PathVariable String roleId, @RequestBody List<String> resourceIds) {
         roleResourceService.delRoleResources(roleId, resourceIds);
-        return WebUtils.ok(ResponseEnum.DELETE_SUCCESS);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 
 
@@ -125,8 +120,8 @@ public class RoleController {
     @SysLog()
     @PreAuthorize("hasAuthority('sysRole:configResources')")
     @PostMapping("/add-role-resources/{roleId}")
-    public ResponseResult addRoleResources(@PathVariable String roleId, @RequestBody List<String> resourceIds) {
+    public Result addRoleResources(@PathVariable String roleId, @RequestBody List<String> resourceIds) {
         roleResourceService.addRoleResources(roleId, resourceIds);
-        return WebUtils.ok(ResponseEnum.ADD_SUCCESS);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 }

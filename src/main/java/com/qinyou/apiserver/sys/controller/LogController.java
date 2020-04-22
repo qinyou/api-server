@@ -1,13 +1,8 @@
 package com.qinyou.apiserver.sys.controller;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.qinyou.apiserver.core.aop.SysLog;
-import com.qinyou.apiserver.core.base.PageDTO;
-import com.qinyou.apiserver.core.base.PageFindDTO;
-import com.qinyou.apiserver.core.result.ResponseEnum;
-import com.qinyou.apiserver.core.result.ResponseResult;
+import com.qinyou.apiserver.core.base.*;
 import com.qinyou.apiserver.core.utils.WebUtils;
 import com.qinyou.apiserver.sys.entity.Log;
 import com.qinyou.apiserver.sys.service.ILogService;
@@ -30,22 +25,22 @@ import java.util.List;
  * @author chuang
  * @since 2019-12-15
  */
-@Api(tags = "操作日志")
+@SuppressWarnings({"Duplicates"})
+@Api(tags = "7.操作日志")
 @RestController
 @RequestMapping("/sys/log")
 public class LogController {
-
     @Autowired
     ILogService logService;
 
     @ApiOperation(value = "查询列表,带分页")
     @PreAuthorize("hasAuthority('sysLog')")
     @PostMapping("/list")
-    public ResponseResult<PageDTO<Log>> list(@RequestBody PageFindDTO pageFindDto) {
-        QueryWrapper<Log> queryWrapper = WebUtils.buildSearchQueryWrapper(pageFindDto);
-        IPage<Log> page = WebUtils.buildSearchPage(pageFindDto);
-        PageDTO<Log> pageDTO = WebUtils.buildResultPage(logService.page(page, queryWrapper));
-        return WebUtils.ok(pageDTO);
+    public Result<PageResult<Log>> list(@RequestBody Query query) {
+        QueryWrapper<Log> queryWrapper = WebUtils.buildSearchQueryWrapper(query);
+        IPage<Log> page = WebUtils.buildSearchPage(query);
+        PageResult<Log> pageResult = WebUtils.buildPageResult(logService.page(page, queryWrapper));
+        return WebUtils.ok(pageResult);
     }
 
 
@@ -53,8 +48,8 @@ public class LogController {
     @SysLog()
     @PreAuthorize("hasAuthority('sysLog:remove')")
     @PostMapping("/batch-remove")
-    public ResponseResult remove(@RequestBody  List<String> ids) {
-         logService.removeByIds(ids);
-         return WebUtils.ok(ResponseEnum.DELETE_SUCCESS);
+    public Result remove(@RequestBody List<String> ids) {
+        logService.removeByIds(ids);
+        return WebUtils.ok(ResultEnum.SUCCESS);
     }
 }

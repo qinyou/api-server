@@ -18,8 +18,9 @@ import java.util.Map;
 public interface IMsgService extends IService<Msg> {
     /**
      * 触发消息
+     *
      * @param typeCode
      * @param params
      */
-   void triggerMsg(String typeCode, Map<String,Object> params) throws IOException, TemplateException;
+    void triggerMsg(String typeCode, Map<String, Object> params) throws IOException, TemplateException;
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -20,25 +21,29 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 @TableName("sys_msg_detail")
-public class MsgDetail{
+public class MsgDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id",type = IdType.ID_WORKER_STR)
+    @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
 
     @TableField("msg_id")
     private String msgId;
 
+    // 发送人
     @TableField("sender")
     private String sender;
 
+    // 接收人
     @TableField("receiver")
     private String receiver;
 
+    // 是否已读
     @TableField("is_read")
     private String isRead;
 
+    // 查看时间
     @TableField("read_time")
     private LocalDateTime readTime;
 

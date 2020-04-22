@@ -1,8 +1,8 @@
 package com.qinyou.apiserver.sys.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.qinyou.apiserver.core.base.PageDTO;
-import com.qinyou.apiserver.core.base.PageFindDTO;
+import com.qinyou.apiserver.core.base.PageResult;
+import com.qinyou.apiserver.core.base.Query;
 import com.qinyou.apiserver.sys.entity.Resource;
 import com.qinyou.apiserver.sys.entity.RoleResource;
 
@@ -19,6 +19,7 @@ import java.util.List;
 public interface IRoleResourceService extends IService<RoleResource> {
     /**
      * 添加
+     *
      * @param roleId
      * @param resourceIds
      */
@@ -26,18 +27,20 @@ public interface IRoleResourceService extends IService<RoleResource> {
 
     /**
      * 删除
+     *
      * @param roleId
      * @param resourceIds
      */
-    void delRoleResources(String roleId,List<String> resourceIds);
+    void delRoleResources(String roleId, List<String> resourceIds);
 
 
     /**
      * 分页查询 角色拥有的资源 或 角色没有的资源
+     *
      * @param haveFlag true 拥有的资源，false 没有的资源
      * @param roleId
-     * @param pageFindDTO
+     * @param query
      * @return
      */
-    PageDTO<Resource> listResources(boolean haveFlag, String roleId, PageFindDTO pageFindDTO);
+    PageResult<Resource> listResources(boolean haveFlag, String roleId, Query query);
 }

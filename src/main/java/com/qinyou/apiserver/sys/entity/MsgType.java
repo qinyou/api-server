@@ -8,8 +8,9 @@ import com.qinyou.apiserver.core.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -20,16 +21,15 @@ import lombok.experimental.Accessors;
  * @since 2019-12-31
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("sys_msg_type")
-@ApiModel(value="MsgType对象", description="系统通知消息类型")
-public class MsgType extends BaseEntity {
+@ApiModel(value = "MsgType对象", description = "系统通知消息类型")
+public class MsgType extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键，存放类型编码")
-    @TableId(value = "id",type = IdType.ID_WORKER_STR)
+    @ApiModelProperty(value = "类型编码")
+    @TableId(value = "id", type = IdType.ID_WORKER_STR)
     private String id;
 
     @ApiModelProperty(value = "推送方式")
@@ -67,6 +67,4 @@ public class MsgType extends BaseEntity {
     @ApiModelProperty(value = "用户编码或角色编码，多个逗号分隔,user:xx,role:xx")
     @TableField("audience")
     private String audience;
-
-
 }

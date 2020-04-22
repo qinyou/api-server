@@ -1,9 +1,9 @@
 package com.qinyou.apiserver.sys.service;
 
-import com.qinyou.apiserver.sys.dto.ChangeInfoDTO;
-import com.qinyou.apiserver.sys.dto.ChangePwdDTO;
-import com.qinyou.apiserver.sys.dto.ResetPwdDTO;
-import com.qinyou.apiserver.sys.dto.UserInfoDTO;
+import com.qinyou.apiserver.sys.dto.UserInfoForm;
+import com.qinyou.apiserver.sys.dto.ChangePwdForm;
+import com.qinyou.apiserver.sys.dto.ResetPwdForm;
+import com.qinyou.apiserver.sys.dto.UserInfo;
 
 
 public interface IAccountService {
@@ -19,25 +19,27 @@ public interface IAccountService {
     String login(String username, String password);
 
 
-
     /**
      * 通过用户名 获取用户信息
+     *
      * @param username
      * @return
      */
-    UserInfoDTO getUserInfo(String username);
+    UserInfo getUserInfo(String username);
 
 
     /**
      * 修改用户个人信息
+     *
      * @param username
-     * @param changeInfoDTO
+     * @param userInfoForm
      */
-    void updateUserInfo(String username, ChangeInfoDTO changeInfoDTO);
+    void updateUserInfo(String username, UserInfoForm userInfoForm);
 
 
     /**
      * 通过邮件发送验证码（同步发送）
+     *
      * @param email
      */
     void sendMailCode(String email);
@@ -45,6 +47,7 @@ public interface IAccountService {
 
     /**
      * 通过手机号发送验证码
+     *
      * @param phone
      */
     void sendPhoneCode(String phone);
@@ -52,14 +55,16 @@ public interface IAccountService {
 
     /**
      * 通过验证码重置账号验证码
-     * @param resetPwdDTO
+     *
+     * @param resetPwdForm
      */
-    void resetPwd(ResetPwdDTO resetPwdDTO);
+    void resetPwd(ResetPwdForm resetPwdForm);
 
     /**
      * 用户修改密码
+     *
      * @param username
-     * @param changePwdDTO
+     * @param changePwdForm
      */
-    void changePwd(String username, ChangePwdDTO changePwdDTO);
+    void changePwd(String username, ChangePwdForm changePwdForm);
 }

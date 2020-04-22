@@ -1,7 +1,8 @@
 package com.qinyou.apiserver.core.config;
 
-import com.qinyou.apiserver.core.security.JwtClaim;
-import com.qinyou.apiserver.core.security.JwtUtil;
+import com.google.common.base.Predicates;
+import com.qinyou.apiserver.core.base.JwtClaim;
+import com.qinyou.apiserver.core.component.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,11 +35,11 @@ public class SwaggerConfig {
     @Bean
     public Docket createAccountAPI() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("1. 账号认证")
-                .apiInfo(createApiInfo("账号认证", "账号认证、密码重置，用户信息等"))
+                .groupName("1. 通用接口")
+                .apiInfo(createApiInfo("通用接口", "账号相关、上传文件等"))
                 .ignoredParameterTypes(JwtClaim.class)
                 .select()
-                .paths(PathSelectors.ant("/account/**"))
+                .paths(Predicates.or(PathSelectors.ant("/account/**"), PathSelectors.ant("/file/**")))
                 .build();
     }
 
@@ -51,17 +52,6 @@ public class SwaggerConfig {
                 .globalOperationParameters(commonTokenParams())
                 .select()
                 .paths(PathSelectors.ant("/sys/**"))
-                .build();
-    }
-
-    @Bean
-    public Docket createSysRestApi3() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("3. 通用接口")
-                .apiInfo(createApiInfo("通用接口", "文件上传等"))
-                .ignoredParameterTypes(JwtClaim.class)
-                .select()
-                .paths(PathSelectors.ant("/file/**"))
                 .build();
     }
 
@@ -111,12 +101,12 @@ public class SwaggerConfig {
      * @return
      */
     private String genTokenExample() {
-        JwtUtil jwtUtil = new JwtUtil();
-        jwtUtil.setSecret("123456");
-        jwtUtil.setExpireIdle(2400);
-        String token = jwtUtil.generate("admin");
-        while (token.contains("_") || !jwtUtil.verify(token)) {
-            token = jwtUtil.generate("admin");
+        JwtService jwtService = new JwtService();
+        jwtService.setSecret("123456");
+        jwtService.setExpireIdle(2400);
+        String token = jwtService.generate("admin");
+        while (token.contains("_") || !jwtService.verify(token)) {
+            token = jwtService.generate("admin");
         }
         return "Bearer " + token;
     }

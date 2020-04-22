@@ -1,7 +1,6 @@
 package com.qinyou.apiserver.sys.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.qinyou.apiserver.sys.dto.RoleDTO;
 import com.qinyou.apiserver.sys.entity.Role;
 
 import java.util.Set;
@@ -16,9 +15,12 @@ import java.util.Set;
  */
 public interface IRoleService extends IService<Role> {
 
-    void add(RoleDTO roleDTO);
-    void update(String id, RoleDTO roleDTO);
+    void add(Role role);
+
+    void update(Role role);
+
     void remove(String id);
+
     void toggleState(String id);
 
     // 根据角色id查询 用户名列表
